@@ -11,10 +11,10 @@ public class Builder {
     private Builder() { }
     public static Builder Create() => new Builder();
     
-    public void ConfigureOptions(Action<SocketOptions> configureOptions = null) {
+    public void ConfigureOptions(Action<SocketOptions>? configureOptions = null) {
         configureOptions?.Invoke(_socketOptions);
     }
-    public void ConfigureActions(Action<ActionOptions> configureOptions = null) {
+    public void ConfigureActions(Action<ActionOptions>? configureOptions = null) {
         configureOptions?.Invoke(_actionOptions);
     }
     public TcpClient Build() {

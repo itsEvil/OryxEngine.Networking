@@ -5,20 +5,14 @@ using OryxEngine.Networking.Statuses;
 namespace OryxEngine.Networking.Sockets;
 public partial class SocketBase : Socket
 {
-    public SocketBase(AddressFamily addressFamily, SocketType socketType, ProtocolType protocolType) : base(addressFamily, socketType, protocolType)
-    {
-        
-    }
+    public SocketBase(AddressFamily addressFamily, SocketType socketType, ProtocolType protocolType) : base(addressFamily, socketType, protocolType) { }
+    public SocketBase(SafeSocketHandle handle) : base(handle) { }
+    /// <summary>
+    /// Only supported on Windows
+    /// </summary>
+#pragma warning disable CA1416
+    public SocketBase(SocketInformation socketInformation) : base(socketInformation) { }
+#pragma warning restore CA1416
 
-    public SocketBase(SafeSocketHandle handle) : base(handle)
-    {
-    }
-
-    public SocketBase(SocketInformation socketInformation) : base(socketInformation)
-    {
-    }
-
-    public SocketBase(SocketType socketType, ProtocolType protocolType) : base(socketType, protocolType)
-    {
-    }
+    public SocketBase(SocketType socketType, ProtocolType protocolType) : base(socketType, protocolType) { }
 }
