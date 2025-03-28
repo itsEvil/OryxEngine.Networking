@@ -19,7 +19,10 @@ public sealed class PingExample : IPacket
     /// Wrote on the main thread
     /// </summary>
     /// <param name="writer"></param>
-    public void Write(Writer writer) {
+    public void Write(Writer writer)
+    {
+        //Packet Id
+        writer.Write(ushort.MaxValue);
         writer.Write(DateTime.UtcNow.ToBinary());
     }
     /// <summary>

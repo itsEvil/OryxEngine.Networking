@@ -1,6 +1,7 @@
 ﻿using OryxEngine.Memory.Optionals;
 using OryxEngine.Networking;
 using OryxEngine.Networking.PacketHandler;
+using OryxEngine.Networking.Packets;
 using OryxEngine.Networking.Statuses;
 using OryxEngine.Networking.Validators;
 using OryxEngine.Optionals;
@@ -38,6 +39,10 @@ public class Client(TcpClient client)
     public void Connect(string host, int port) {
         var result = _client.Connect(host, port);
         result.Handle(OnConnect, OnBadConnect);
+        
+        _client.Send(new PingExample(new DateTime(1970, 1, 1)));
+        var resultFlush = _client.Flush();
+        Log.Information("Result Flush: {success}, {value}", resultFlush.IsSuccess, resultFlush.Value);
     }
 
     public void Tick()

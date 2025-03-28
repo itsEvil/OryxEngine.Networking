@@ -46,7 +46,26 @@ public class TcpClient
         _validator = _options.Validator;
         _packetHandler = _options.PacketHandler;
     }
+    public TcpClient(SocketBase socket, SocketOptions options, ActionOptions actionOptions)
+    {
+        _options = options;
+        _actionOptions = actionOptions;
+        _socketBase = socket;
+        _cts = new CancellationTokenSource();
+        _socketBase.Blocking = _options.Blocking;
+        _socketBase.NoDelay = _options.NoDelay;
+        _reader = new Reader(_options.EndianMode, new byte[_options.BufferSize], OnPacketFailure);
+        _writer = new Writer(_options.EndianMode, new byte[_options.BufferSize], OnPacketFailure);
+        _socketBase.SendBufferSize = _writer.Buffer.Length;
+        _socketBase.ReceiveBufferSize = _reader.Buffer.Length;
+        _validator = _options.Validator;
+        _packetHandler = _options.PacketHandler;
 
+        if (!_socketBase.IsConnected())
+            return;
+        
+        _receiveTask = Task.Run(ReceiveThread, _cts.Token);
+    }
     public Option<SocketStatus> Tick()
     {
         if (_cts.IsCancellationRequested)
@@ -153,17 +172,13 @@ public class TcpClient
 
             _reader.Buffer.AsSpan().Clear();
             
-            int totalLength;
-            try
-            {
-                totalLength = _socketBase.Receive(_reader.Buffer);
-            }
-            catch (Exception e)
-            {
-                Disconnect($"Caught exception when receiving data: {e.Message}\n{e.StackTrace}");
+            var result = _socketBase.Receive(_reader.Buffer);
+            if(!result.IsSuccess) {
+                Disconnect($"Caught exception when receiving data: {result.Error}");
                 return Task.CompletedTask;
             }
 
+            var totalLength = result.Value;
             if (totalLength == -1)
             {
                 Disconnect("Length is not initialized");
